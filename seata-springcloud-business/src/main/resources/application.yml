@@ -1,0 +1,31 @@
+#========================================server config=====================================
+server:
+  port: 7100
+#========================================spring config=====================================
+spring:
+  application:
+    name: seata-springcloud-business
+  devtools:
+    restart:
+      enabled: false
+#========================================feign config=====================================
+feign:
+  hystrix:
+    enabled: false  #注意hystrix默认使用线程池隔离,feign默认整合了hystrix,所以通过feign远程调用时，线程变量无法传递，可改用信号量隔离
+
+ribbon:
+  ReadTimeout: 30000 #处理超时时间 默认5秒
+  ConnectTimeout: 10000 #连接超时时间 默认2秒
+
+# hystrix 请求超时时间，Ribbon超时与Hystrix超时问题，为了确保Ribbon重试的时候不被熔断，我们就需要让Hystrix的超时时间大于Ribbon的超时时间，
+# 否则Hystrix命令超时后，该命令直接熔断，重试机制就没有任何意义了
+hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 60000
+
+# 更改hystrix 隔离策略:信号量
+hystrix.command.default.execution.isolation.strategy: SEMAPHORE
+
+#========================================eureka config=====================================
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://@localhost:8761/eureka/
