@@ -3,7 +3,7 @@
 <mapper namespace="com.sly.seata.order.mapper.OrderMapper">
 	<!-- 新增 -->
 	<insert id="insert" parameterType="com.sly.seata.common.model.order.Order">
-		INSERT INTO `business_order`(orderId,orderNo,orderDetail,createTime,logicDel,remark)
-		VALUES(#{orderId},#{orderNo},#{orderDetail},#{createTime},#{logicDel},#{remark})
+		INSERT INTO `business_order`(orderId,orderNo,orderDetail,createTime,logicDel,remark,pay_status)
+		VALUES(#{orderId},#{orderNo},#{orderDetail},#{createTime},#{logicDel},#{remark},#{payStatus})
 	</insert>
 </mapper>

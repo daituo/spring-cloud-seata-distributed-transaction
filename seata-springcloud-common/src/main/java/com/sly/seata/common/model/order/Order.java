@@ -25,6 +25,9 @@ public class Order implements Serializable {
 	/** varchar(240) NULL备注 */
 	private String remark;
 
+	/** 支付状态 1-待支付 2-已支付 3-支付失败 */
+	private Integer payStatus;
+
 	public String getOrderId() {
 		return orderId;
 	}
@@ -73,4 +76,11 @@ public class Order implements Serializable {
 		this.remark = remark;
 	}
 
+	public Integer getPayStatus() {
+		return payStatus;
+	}
+
+	public void setPayStatus(Integer payStatus) {
+		this.payStatus = payStatus;
+	}
 }

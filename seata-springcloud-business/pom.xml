@@ -33,6 +33,15 @@
 			<artifactId>seata-springcloud-business-api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+
+		<!--支付宝SDK-->
+		<dependency>
+			<groupId>com.sly</groupId>
+			<artifactId>alipay-sdk-java</artifactId>
+			<version>3.3.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/main/resources/lib/alipay-sdk-java-3.3.0.jar</systemPath>
+		</dependency>
 	
 		<!-- 服务调用相关 -->
 		<dependency>

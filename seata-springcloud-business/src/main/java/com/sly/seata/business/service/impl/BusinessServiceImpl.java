@@ -53,7 +53,7 @@ public class BusinessServiceImpl implements BusinessService {
 	 * @author sly
 	 * @time 2019年6月12日
 	 */
-	@GlobalTransactional	//seata的全局事务注解
+	//@GlobalTransactional	//seata的全局事务注解
 	@Override
 	public Map<String, Object> purchase(@RequestParam("accountId") String accountId,
 										@RequestParam("orderId") String orderId,
