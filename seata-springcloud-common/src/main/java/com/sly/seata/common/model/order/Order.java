@@ -83,4 +83,17 @@ public class Order implements Serializable {
 	public void setPayStatus(Integer payStatus) {
 		this.payStatus = payStatus;
 	}
+
+	@Override
+	public String toString() {
+		return "Order{" +
+				"orderId='" + orderId + '\'' +
+				", orderNo='" + orderNo + '\'' +
+				", orderDetail='" + orderDetail + '\'' +
+				", createTime='" + createTime + '\'' +
+				", logicDel='" + logicDel + '\'' +
+				", remark='" + remark + '\'' +
+				", payStatus=" + payStatus +
+				'}';
+	}
 }

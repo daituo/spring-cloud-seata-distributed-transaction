@@ -6,4 +6,17 @@
 		INSERT INTO `business_order`(orderId,orderNo,orderDetail,createTime,logicDel,remark,pay_status)
 		VALUES(#{orderId},#{orderNo},#{orderDetail},#{createTime},#{logicDel},#{remark},#{payStatus})
 	</insert>
+
+	<select id="selectNoPayOrders" resultType="com.sly.seata.common.model.order.Order">
+		select orderId,orderNo,orderDetail,createTime,logicDel,remark,pay_status as payStatus from `business_order` where pay_status != 2
+	</select>
+	
+	<update id="updateOrderPayStatus" >
+		update `business_order` set pay_status = #{payStatus} where orderId = #{outTradeNo}
+	</update>
+
+	<select id="selectByOrderId" resultType="com.sly.seata.common.model.order.Order">
+		select orderId,orderNo,orderDetail,createTime,logicDel,remark,pay_status as payStatus from `business_order` where orderId = #{outTradeNo}
+	</select>
+
 </mapper>

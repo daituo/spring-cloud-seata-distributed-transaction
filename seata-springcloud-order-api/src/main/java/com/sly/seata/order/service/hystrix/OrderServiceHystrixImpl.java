@@ -1,6 +1,7 @@
 package com.sly.seata.order.service.hystrix;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Component;
@@ -31,6 +32,21 @@ public class OrderServiceHystrixImpl implements OrderService {
 		result.put("status", 400);
 		result.put("message", "调用订单新增服务失败！");
 		return result;
+	}
+
+    @Override
+    public List<Order> selectNoPayOrders() {
+        return null;
+    }
+
+	@Override
+	public void updateOrderPayStatus(String outTradeNo, int payStatus) {
+
+	}
+
+	@Override
+	public Order selectByOrderId(String outTradeNo) {
+		return null;
 	}
 
 }

@@ -1,6 +1,7 @@
 package com.sly.seata.order.service.impl;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,22 @@ public class OrderServiceImpl implements OrderService {
 		result.put("status", 200);
 		result.put("message", "新增成功！");
 		return result;
+	}
+
+
+	@Override
+	public List<Order> selectNoPayOrders() {
+		return orderMapper.selectNoPayOrders();
+	}
+
+	@Override
+	public void updateOrderPayStatus(String outTradeNo, int payStatus) {
+		orderMapper.updateOrderPayStatus(outTradeNo,payStatus);
+	}
+
+	@Override
+	public Order selectByOrderId(String outTradeNo) {
+		return orderMapper.selectByOrderId(outTradeNo);
 	}
 
 }
