@@ -5,8 +5,10 @@ import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.internal.util.AlipaySignature;
+import com.alipay.api.request.AlipayDataDataserviceBillDownloadurlQueryRequest;
 import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.alipay.api.request.AlipayTradeQueryRequest;
+import com.alipay.api.response.AlipayDataDataserviceBillDownloadurlQueryResponse;
 import com.alipay.api.response.AlipayTradePagePayResponse;
 import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.sly.seata.common.model.order.Order;
@@ -24,8 +26,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Author daituo
@@ -50,7 +60,6 @@ public class AlipayController {
                                                                 AlipayConfig.charset,
                                                                 AlipayConfig.alipay_public_key,
                                                                 AlipayConfig.sign_type);
-
     @Autowired
     private OrderService orderService;
 
@@ -111,6 +120,7 @@ public class AlipayController {
     }
 
 
+
     /**
      * 支付结束后，Get同步通知支付结果
      * 真实同步url===>http://117.136.12.122:7100/pay/success?charset=utf-8
@@ -156,6 +166,8 @@ public class AlipayController {
         }
 
         if (signVerified) {
+            //修改订单状态-已支付
+            orderService.updateOrderPayStatus(paramsMap.get("out_trade_no"), Payed);
             return "success";
         } else {
             /**
@@ -214,6 +226,7 @@ public class AlipayController {
     }
 
 
+
     /**
      * 获取Post请求的所有参数
      * @param request
@@ -234,6 +247,7 @@ public class AlipayController {
         }
         return paramsMap;
     }
+
 
 
     /**
@@ -268,5 +282,75 @@ public class AlipayController {
         }
         return JSON.toJSONString(tradeQueryResponse);
     }
+
+
+
+    /**
+     * 下载支付宝对账单
+     */
+    @RequestMapping(path="/bill/download", method = RequestMethod.GET)
+    public void downloadAlipayBill(HttpServletRequest request, HttpServletResponse response) {
+        AlipyaBillQueryParam billQueryParam = new AlipyaBillQueryParam();
+        String billDate = "2019-08-26";
+        billQueryParam.setBill_type("trade");
+        billQueryParam.setBill_date(billDate);
+        AlipayDataDataserviceBillDownloadurlQueryRequest billDownloadRequest = new AlipayDataDataserviceBillDownloadurlQueryRequest();
+        billDownloadRequest.setBizContent(JSON.toJSONString(billQueryParam));
+        InputStream inputStream = null;
+        FileOutputStream fileOutputStream = null;
+        HttpURLConnection httpURLConnection = null;
+        try {
+            AlipayDataDataserviceBillDownloadurlQueryResponse billDownloadResponse = alipayClient.execute(billDownloadRequest);
+            log.info("call alipay download bill response -> {}",JSON.toJSONString(billDownloadResponse));
+            if (billDownloadResponse.isSuccess()) {
+                //预下载电子账单
+                String billDownloadUrl = billDownloadResponse.getBillDownloadUrl();
+                URL url = new URL(billDownloadUrl);
+                httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.setConnectTimeout(5 * 1000);
+                httpURLConnection.setDoInput(true);
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setUseCaches(false);
+                httpURLConnection.setRequestMethod("GET");
+                httpURLConnection.setRequestProperty("Charsert", "UTF-8");
+                httpURLConnection.connect();
+                inputStream = httpURLConnection.getInputStream();
+                String filePath = AlipayConfig.log_path + "alipayBill" + File.separator + "bill_" + billDate + ".xls";
+                File billFile = new File(filePath);
+                String parentFilePath = billFile.getParent();
+                File parentDir = new File(parentFilePath);
+                if (!parentDir.exists()) {
+                    parentDir.mkdir();
+                }
+                fileOutputStream = new FileOutputStream(new File(filePath));
+                byte[] temp = new byte[1024];
+                int b;
+                while ((b = inputStream.read(temp)) != -1) {
+                    fileOutputStream.write(temp, 0, b);
+                    fileOutputStream.flush();
+                }
+                //IOUtils.copy(inputStream, fileOutputStream);
+
+                //浏览器直接下载
+                //response.addHeader("Content-Disposition", "attachment;filename=bill_" + billDate + ".csv");
+                //response.addHeader("Content-Type", "application/octet-stream");
+                //IOUtils.copy(inputStream, response.getOutputStream());
+            } else {
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if(inputStream != null) inputStream.close();
+                if(fileOutputStream != null) fileOutputStream.close();
+                if(httpURLConnection != null) httpURLConnection.disconnect();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
 
 }
